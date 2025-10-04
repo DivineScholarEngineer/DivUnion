@@ -119,3 +119,12 @@ CREATE TABLE IF NOT EXISTS `store_product` (
 ) ENGINE=InnoDB;
 
 -- End of schema
+
+SHOW TABLES;
+DESCRIBE `auth_group`;
+DESCRIBE `auth_permission`;
+DESCRIBE `accounts_customuser`;
+DESCRIBE `accounts_customuser_groups`;
+DESCRIBE `accounts_customuser_user_permissions`;
+DESCRIBE `store_category`;
+DESCRIBE `store_product`;
