@@ -1,0 +1,13 @@
+# Netlify configuration for static preview of the DivUnion project.
+# This file configures a build that uses django-distill to export
+# the dynamic Django site into a set of static files.  The output
+# directory defined by ``publish`` will be uploaded to Netlify.
+
+[build]
+  command = "python manage.py distill-local --force"
+  publish = "distill_build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

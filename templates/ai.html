@@ -1,0 +1,23 @@
+{% load static %}
+{% extends "base.html" %}
+{% block title %}AI Agent{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">AI Customer Support</h1>
+    <div class="chat-box border rounded p-3 mb-3" style="min-height: 300px; background-color: #f8f9fa;">
+        {% for sender, message in conversation %}
+        <div class="mb-2">
+            <strong>{{ sender }}:</strong> {{ message }}
+        </div>
+        {% empty %}
+        <p class="text-muted">Start the conversation by asking a question.</p>
+        {% endfor %}
+    </div>
+    <form method="post" class="d-flex">
+        {% csrf_token %}
+        <input type="text" name="message" class="form-control me-2" placeholder="Type your message..." required autofocus>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
+{% endblock %}
