@@ -1,14 +1,47 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h1 class="mb-4">Login</h1>
-    <form method="post" novalidate>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-    <p class="mt-3">Don't have an account? <a href="{% url 'register' %}">Register here</a>.</p>
-</div>
+<section class="auth-wrapper py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="card auth-card shadow-lg overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-md-5 auth-card__aside text-white d-flex flex-column justify-content-between">
+                            <div>
+                                <h1 class="display-6 fw-bold">Welcome back!</h1>
+                                <p class="mt-3 mb-4">
+                                    Sign in to access your personalised DivUnion dashboard. Your account
+                                    credentials are securely stored in our SQLite database and encrypted in transit.
+                                </p>
+                                <ul class="list-unstyled small auth-card__features">
+                                    <li class="d-flex align-items-start mb-2"><span class="auth-card__bullet"></span> Browse exclusive developer tools.</li>
+                                    <li class="d-flex align-items-start mb-2"><span class="auth-card__bullet"></span> Track your project timeline and purchases.</li>
+                                    <li class="d-flex align-items-start"><span class="auth-card__bullet"></span> Sync preferences across every device.</li>
+                                </ul>
+                            </div>
+                            <div class="small mt-4">
+                                <p class="mb-1">New here?</p>
+                                <a class="text-white fw-semibold" href="{% url 'register' %}">Create a free account in seconds</a>
+                            </div>
+                        </div>
+                        <div class="col-md-7 p-4 p-md-5 bg-white">
+                            <h2 class="fw-semibold mb-4">Sign in to DivUnion</h2>
+                            <form method="post" novalidate class="auth-form">
+                                {% csrf_token %}
+                                {{ form|crispy }}
+                                <button type="submit" class="btn btn-primary w-100 py-2">Login</button>
+                            </form>
+                            <p class="text-muted small mt-3 mb-0">
+                                Having trouble signing in? Contact us via the <a href="{% url 'contact' %}">support form</a> and we will help reset your access.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

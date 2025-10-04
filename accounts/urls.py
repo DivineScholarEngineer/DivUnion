@@ -1,17 +1,17 @@
-"""
-URL configuration for the accounts app.
+"""URL configuration for the accounts app.
 
-Includes paths for login, logout, registration and profile pages.  The
-login and logout views are provided by Django, while registration
-and profile are custom.
+Includes paths for login, logout, registration and profile pages. The
+login view is a custom wrapper around Django's authentication system so we
+can surface additional SQLite-focused messaging, while logout uses the
+built-in view. Registration and profile remain custom.
 """
-from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.urls import path
 from . import views
 
 
 urlpatterns = [
-    path("login/", auth_views.LoginView.as_view(template_name="accounts/login.html"), name="login"),
+    path("login/", views.login_view, name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("register/", views.register, name="register"),
     path("profile/", views.profile, name="profile"),

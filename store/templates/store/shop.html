@@ -3,35 +3,188 @@
 {% block title %}Shop{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h1 class="mb-4">Shop</h1>
-    <form method="get" class="mb-4">
-        {{ filter.form|crispy }}
-        <button type="submit" class="btn btn-primary mt-2">Search</button>
-    </form>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% for product in products %}
-        <div class="col">
-            <div class="card h-100">
-                {% if product.image %}
-                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-                {% endif %}
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text mb-3">{{ product.description|truncatewords:20 }}</p>
-                    <p class="card-text fw-bold mb-3">${{ product.price }}</p>
-                    <div class="mt-auto">
-                        <a href="{% url 'product_detail' product.slug %}" class="btn btn-primary btn-sm">View</a>
-                        {% if product.ebay_url %}
-                        <a href="{{ product.ebay_url }}" class="btn btn-outline-secondary btn-sm ms-2" target="_blank">Buy on eBay</a>
-                        {% endif %}
+<section class="shop-hero text-white py-5">
+    <div class="container">
+        <div class="row align-items-center gy-4">
+            <div class="col-lg-7">
+                <span class="badge bg-gradient-primary text-uppercase small mb-3">Marketplace</span>
+                <h1 class="display-5 fw-bold">Discover the DivUnion Shop</h1>
+                <p class="lead mb-4">Hand-picked hardware, software licences and learning kits curated for builders. Filter, sort and purchase in just a few clicks.</p>
+                <div class="d-flex flex-wrap gap-4 shop-hero__stats">
+                    <div>
+                        <span class="shop-hero__stat-number">{{ total_products }}</span>
+                        <p class="mb-0 text-white-50">Products available</p>
+                    </div>
+                    <div>
+                        <span class="shop-hero__stat-number">
+                            {% if price_summary.min_price %}${{ price_summary.min_price|floatformat:2 }}–${{ price_summary.max_price|floatformat:2 }}{% else %}--{% endif %}
+                        </span>
+                        <p class="mb-0 text-white-50">Price range</p>
+                    </div>
+                    <div>
+                        <span class="shop-hero__stat-number">{{ category_breakdown|length }}</span>
+                        <p class="mb-0 text-white-50">Categories stocked</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card glass-card text-dark">
+                    <div class="card-body p-4">
+                        <h2 class="h4 fw-semibold mb-3">Popular categories</h2>
+                        <ul class="list-unstyled mb-0 shop-hero__categories">
+                            {% for entry in category_breakdown %}
+                            <li class="d-flex justify-content-between align-items-center mb-2">
+                                <span>{{ entry.category__name|default:"Uncategorised" }}</span>
+                                <span class="badge rounded-pill bg-primary-subtle text-primary">{{ entry.total }}</span>
+                            </li>
+                            {% empty %}
+                            <li class="text-muted small">Add products in the admin area to surface top categories here.</li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
-        {% empty %}
-        <p>No products found.</p>
-        {% endfor %}
     </div>
-</div>
+</section>
+
+<section class="py-5 bg-light shop-controls">
+    <div class="container">
+        <div class="row gy-4 align-items-start">
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+                            <h2 class="h4 mb-0">Filter products</h2>
+                            <span class="text-muted small">Powered by realtime SQLite queries</span>
+                        </div>
+                        <form method="get" class="row g-3">
+                            {{ filter.form|crispy }}
+                            <input type="hidden" name="sort" value="{{ sort_option }}">
+                            <div class="col-12 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Apply filters</button>
+                                <a href="{% url 'shop' %}" class="btn btn-outline-secondary">Clear</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-3">Sort results</h3>
+                        <form method="get" class="sort-form">
+                            {% for key, value in request.GET.items %}
+                                {% if key != 'sort' %}
+                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                {% endif %}
+                            {% endfor %}
+                            <label for="sortSelect" class="form-label">Order by</label>
+                            <select id="sortSelect" class="form-select" name="sort" onchange="this.form.submit()">
+                                {% for key, label in sort_labels.items %}
+                                <option value="{{ key }}" {% if key == sort_option %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                </div>
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h3 class="h5 mb-3">Quick category jump</h3>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for category in all_categories %}
+                            <a class="badge bg-primary-subtle text-primary px-3 py-2" href="{% url 'shop' %}?category={{ category.id }}">{{ category.name }}</a>
+                            {% empty %}
+                            <span class="text-muted small">Create categories in the admin site to unlock quick filters.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if featured_products %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h3 mb-0">Featured picks</h2>
+            <span class="text-muted small">Based on your current filters</span>
+        </div>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for product in featured_products %}
+            <div class="col">
+                <div class="card product-card h-100">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="product-card__placeholder d-flex align-items-center justify-content-center text-muted">
+                        <span>No image</span>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-secondary-subtle text-secondary mb-2">{{ product.category.name|default:"General" }}</span>
+                        <h3 class="h5">{{ product.name }}</h3>
+                        <p class="text-muted small mb-3">{{ product.description|truncatewords:20 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">${{ product.price }}</span>
+                            <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline-primary btn-sm">View details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h3 mb-0">All results</h2>
+            <span class="text-muted small">Displaying {{ products|length }} of {{ total_products }} products</span>
+        </div>
+        {% if has_results %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for product in products %}
+            <div class="col">
+                <div class="card product-card h-100">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="product-card__placeholder d-flex align-items-center justify-content-center text-muted">
+                        <span>No image</span>
+                    </div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <span class="badge bg-secondary-subtle text-secondary mb-2">{{ product.category.name|default:"General" }}</span>
+                        <h3 class="h5">{{ product.name }}</h3>
+                        <p class="text-muted small mb-3">{{ product.description|truncatewords:24 }}</p>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">${{ product.price }}</span>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'product_detail' product.slug %}" class="btn btn-primary btn-sm">View</a>
+                                {% if product.ebay_url %}
+                                <a href="{{ product.ebay_url }}" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">Buy on eBay</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <h3 class="h5">No products match your filters yet</h3>
+                <p class="text-muted mb-4">Try clearing filters or explore another category to rediscover everything DivUnion offers.</p>
+                <a href="{% url 'shop' %}" class="btn btn-outline-primary">Reset filters</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}
