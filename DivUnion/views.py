@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Tuple, Dict
+from typing import Dict, Iterable, List, Tuple
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -13,6 +13,89 @@ from django.shortcuts import redirect, render
 
 from store.models import Product
 from store import views as store_views
+
+Feature = Dict[str, str]
+
+CORE_FEATURES: List[Feature] = [
+    {
+        "icon": "🛍️",
+        "title": "Curated Tech Catalogue",
+        "description": "Browse a hand-picked selection of innovative gadgets sourced from trusted partners.",
+    },
+    {
+        "icon": "🔍",
+        "title": "Smart Search & Filters",
+        "description": "Quickly locate products using responsive keyword and category filtering.",
+    },
+    {
+        "icon": "🤖",
+        "title": "AI Customer Support",
+        "description": "Get instant answers from our on-site assistant that remembers your recent conversation.",
+    },
+    {
+        "icon": "🧑\u200d💻",
+        "title": "Developer Dashboard",
+        "description": "Unlock internal insights with a developer role that exposes roadmap-ready stats.",
+    },
+    {
+        "icon": "🔐",
+        "title": "Account Management",
+        "description": "Create an account to personalise your experience and manage your profile securely.",
+    },
+]
+
+NEW_FEATURES: List[Feature] = [
+    {
+        "icon": "📱",
+        "title": "Responsive Layout",
+        "description": "Bootstrap-powered pages adapt gracefully to phones, tablets and desktops.",
+    },
+    {
+        "icon": "⚡",
+        "title": "Subtle Scroll Animations",
+        "description": "IntersectionObserver-driven fade-ins keep the experience lively without hurting performance.",
+    },
+    {
+        "icon": "🍪",
+        "title": "Cookie Consent Controls",
+        "description": "Visitors can opt in to cookies at any time thanks to our built-in banner.",
+    },
+    {
+        "icon": "🌐",
+        "title": "Static Export Ready",
+        "description": "Deploy effortlessly with django-distill powering static builds for platforms like Netlify.",
+    },
+    {
+        "icon": "📊",
+        "title": "Operational Snapshot",
+        "description": "The dashboard summarises catalogue counts to jump-start your product planning.",
+    },
+    {
+        "icon": "🧭",
+        "title": "Category-driven Navigation",
+        "description": "Structure large inventories with reusable category records and friendly slugs.",
+    },
+    {
+        "icon": "🖼️",
+        "title": "Media-ready Listings",
+        "description": "High-quality imagery and detailed descriptions bring every product to life.",
+    },
+    {
+        "icon": "🔗",
+        "title": "Marketplace Links",
+        "description": "Attach optional outbound links such as eBay offers directly from product records.",
+    },
+    {
+        "icon": "💬",
+        "title": "Session-aware Conversations",
+        "description": "Chat history persists for the duration of your visit so you never lose context.",
+    },
+    {
+        "icon": "🛡️",
+        "title": "Role-based Access",
+        "description": "Fine-tune staff access with the extendable developer flag on custom user accounts.",
+    },
+]
 
 Conversation = List[Tuple[str, str]]
 
@@ -30,10 +113,18 @@ def _get_products(limit: int | None = None) -> Iterable[Product]:
 
 
 def index(request: HttpRequest) -> HttpResponse:
-    """Homepage showing featured products."""
+    """Homepage showing featured products and platform highlights."""
 
     products = _get_products(limit=6)
-    return render(request, "index.html", {"products": products})
+    return render(
+        request,
+        "index.html",
+        {
+            "products": products,
+            "core_features": CORE_FEATURES,
+            "new_features": NEW_FEATURES,
+        },
+    )
 
 
 def _generate_response(message: str) -> str:
