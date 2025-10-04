@@ -28,5 +28,18 @@ quickly understand what the marketplace offers.
 ## MySQL Setup
 
 A ready-to-run schema is available at `scripts/mysql_schema.sql`. Execute the
-script against your MySQL server, update the Django `DATABASES` setting and run
-`python manage.py migrate` to finish applying Django's built-in tables.
+script against your MySQL server and provide the connection credentials via
+environment variables before starting Django:
+
+```
+export DJANGO_DB_ENGINE=mysql
+export MYSQL_DATABASE=divunion
+export MYSQL_USER=divunion_app
+export MYSQL_PASSWORD=change-me
+export MYSQL_HOST=127.0.0.1  # or your host
+export MYSQL_PORT=3306
+```
+
+The application automatically falls back to SQLite when these variables are not
+present. Once configured, install the Python dependencies (including PyMySQL)
+and run `python manage.py migrate` to finish applying Django's built-in tables.
