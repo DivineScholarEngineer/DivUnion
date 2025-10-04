@@ -1,19 +1,8 @@
--- MySQL schema for the DivUnion project.
---
--- This script focuses on the project-specific tables. Core Django tables
--- (auth_*, django_*, etc.) should be created automatically by running the
--- Django migrations once the database is provisioned.
---
--- Usage:
---   1. Run this script against your MySQL server.
---   2. Update DATABASES in settings.py or via environment variables to point
---      at the MySQL instance.
---   3. Execute `python manage.py migrate` to let Django finish configuring the
---      built-in tables and apply any future migrations.
---
--- The script also demonstrates how to create a dedicated database user. Feel
--- free to adjust credentials to match your environment.
+-- MySQL schema for the DivUnion project (cleaned + working version)
 
+-- ---------------------------------------------------------------------------
+-- Create database and user
+-- ---------------------------------------------------------------------------
 CREATE DATABASE IF NOT EXISTS `divunion`
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -24,6 +13,26 @@ GRANT ALL PRIVILEGES ON `divunion`.* TO 'divunion_app'@'localhost';
 FLUSH PRIVILEGES;
 
 USE `divunion`;
+
+-- ---------------------------------------------------------------------------
+-- Minimal placeholder tables for Django built-ins
+-- (so foreign keys resolve; migrations will overwrite later)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `auth_group` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(150) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_group_name_key` (`name`)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `auth_permission` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `content_type_id` INT NOT NULL,
+  `codename` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_permission_codename_key` (`content_type_id`, `codename`)
+) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------------
 -- Custom user table (accounts.CustomUser)
@@ -45,6 +54,9 @@ CREATE TABLE IF NOT EXISTS `accounts_customuser` (
   UNIQUE KEY `accounts_customuser_username_key` (`username`)
 ) ENGINE=InnoDB;
 
+-- ---------------------------------------------------------------------------
+-- User group membership table
+-- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `accounts_customuser_groups` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `customuser_id` BIGINT NOT NULL,
@@ -60,6 +72,9 @@ CREATE TABLE IF NOT EXISTS `accounts_customuser_groups` (
     ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+-- ---------------------------------------------------------------------------
+-- User permissions table
+-- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `accounts_customuser_user_permissions` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `customuser_id` BIGINT NOT NULL,
@@ -76,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `accounts_customuser_user_permissions` (
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------------
--- Store app tables
+-- Store tables
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `store_category` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
@@ -103,4 +118,4 @@ CREATE TABLE IF NOT EXISTS `store_product` (
     ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- End of schema -------------------------------------------------------------
+-- End of schema
