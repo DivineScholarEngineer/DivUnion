@@ -25,6 +25,18 @@ quickly understand what the marketplace offers.
 9. Session-aware AI conversations to preserve context.
 10. Role-based access control via the developer flag.
 
+## Getting Started Locally
+
+1. Create and activate a virtual environment.
+2. Install dependencies with `pip install -r requirements.txt`.
+3. Run `python manage.py migrate` to create the SQLite database and required
+   tables.
+4. Launch the development server with `python manage.py runserver`.
+
+The project ships without a pre-built SQLite database so the migration step is
+required the first time you set up the codebase. Running the migrations will
+also recreate the database if you ever need to reset your local environment.
+
 ## MySQL Setup
 
 A ready-to-run schema is available at `scripts/mysql_schema.sql`. Execute the
