@@ -5,3 +5,4 @@ django-distill==3.2.4
 django-crispy-forms==2.3
 crispy-bootstrap5==2025.6
 django-filter==24.2
+Pillow==10.4.0
