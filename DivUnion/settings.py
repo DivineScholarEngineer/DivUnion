@@ -10,9 +10,34 @@ from __future__ import annotations
 
 from pathlib import Path
 import os
-from typing import List
+from typing import Any, Dict, List
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def env_str(name: str, default: str) -> str:
+    """Return a cleaned environment variable value."""
+
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    value = value.strip()
+    return value if value else default
+
+
+def env_int(name: str, default: int) -> int:
+    """Return an integer environment variable value."""
+
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    value = value.strip()
+    if not value:
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        return default
 
 # Security -----------------------------------------------------------------
 SECRET_KEY = os.environ.get(
@@ -88,12 +113,31 @@ WSGI_APPLICATION = "DivUnion.wsgi.application"
 ASGI_APPLICATION = "DivUnion.asgi.application"
 
 # Database ------------------------------------------------------------------
-DATABASES = {
+DATABASES: Dict[str, Dict[str, Any]] = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+mysql_requested = env_str("DJANGO_DB_ENGINE", "").lower() == "mysql"
+mysql_requested = mysql_requested or bool(env_str("MYSQL_DATABASE", ""))
+mysql_requested = mysql_requested or bool(env_str("DJANGO_DB_NAME", ""))
+
+if mysql_requested:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": env_str("MYSQL_DATABASE", env_str("DJANGO_DB_NAME", "divunion")),
+        "USER": env_str("MYSQL_USER", env_str("DJANGO_DB_USER", "")),
+        "PASSWORD": env_str("MYSQL_PASSWORD", env_str("DJANGO_DB_PASSWORD", "")),
+        "HOST": env_str("MYSQL_HOST", env_str("DJANGO_DB_HOST", "localhost")),
+        "PORT": env_str("MYSQL_PORT", env_str("DJANGO_DB_PORT", "3306")),
+        "OPTIONS": {
+            "charset": "utf8mb4",
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+        "CONN_MAX_AGE": env_int("DJANGO_DB_CONN_MAX_AGE", 60),
+    }
 
 # Password validation -------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
