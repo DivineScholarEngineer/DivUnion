@@ -4,15 +4,24 @@ Views for the store app.
 Provide pages for browsing products, filtering by name and category and
 viewing individual product details.
 """
-from django.shortcuts import render, get_object_or_404
-from .models import Product
+from django.db import OperationalError
+from django.shortcuts import get_object_or_404, render
+
 from .filters import ProductFilter
+from .models import Product
 
 
 def shop(request):
     """Display the product catalogue with filtering options."""
-    product_filter = ProductFilter(request.GET or None, queryset=Product.objects.all())
-    products = product_filter.qs
+    try:
+        queryset = Product.objects.all()
+    except OperationalError:
+        queryset = Product.objects.none()
+    product_filter = ProductFilter(request.GET or None, queryset=queryset)
+    try:
+        products = product_filter.qs
+    except OperationalError:
+        products = Product.objects.none()
     return render(request, "store/shop.html", {
         "filter": product_filter,
         "products": products,

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Developer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Developer Dashboard</h1>
+    <p class="lead">Welcome back, {{ request.user.username }}.</p>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h2 class="display-5">{{ stats.product_count }}</h2>
+                    <p class="text-muted">Products in catalogue</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">What's next?</h3>
+                    <p class="card-text mb-0">Use this space to track development tasks and roadmap ideas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
