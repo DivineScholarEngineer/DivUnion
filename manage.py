@@ -2,10 +2,21 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from pathlib import Path
 
 
 def main() -> None:
     """Run administrative tasks."""
+    # Ensure the project root is always on ``sys.path``.  When ``manage.py`` is
+    # executed via an absolute path (a common pattern on Windows when running
+    # from shortcuts or IDEs) Python may not include the project directory in
+    # ``sys.path`` which prevents ``DivUnion.settings`` from being imported.
+    # Adding the directory that contains this file guarantees the project
+    # package can always be resolved regardless of the working directory.
+    project_root = Path(__file__).resolve().parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
     # Set the default settings module for the 'DivUnion' project.  This allows
     # Django commands (e.g. runserver, migrate) to locate the correct
     # configuration without requiring the user to export DJANGO_SETTINGS_MODULE.
