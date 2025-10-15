@@ -5,7 +5,7 @@ Handle user registration, profile display and any future account
 management functionality.
 """
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import transaction
@@ -25,7 +25,20 @@ def register(request):
             # account data consistent even if something fails midway.
             with transaction.atomic(using="default"):
                 user = form.save()
-            login(request, user)
+
+            authenticated_user = authenticate(
+                request,
+                username=user.get_username(),
+                password=form.cleaned_data.get("password1"),
+            )
+            if authenticated_user is not None:
+                login(request, authenticated_user)
+            else:  # pragma: no cover - unexpected edge case
+                messages.warning(
+                    request,
+                    "Your account was created but we couldn't sign you in automatically."
+                    " Please log in using your new credentials.",
+                )
             messages.success(request, "Registration successful. Welcome to DivUnion!")
             return redirect("index")
         messages.error(request, "Please correct the errors below to finish creating your account.")
